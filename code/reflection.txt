@@ -1,7 +1,23 @@
-Write your reflection here.
+Reflection: Assignment 05, The Quarter in Review
 
-See reflection.md for what makes a good reflection — be specific, use the
-terminology from this assignment (grain, long vs. wide, vectorized .str methods,
-coerce, NaT, pd.to_datetime format, .dt, concat, ignore_index, group by, named
-aggregation, reset_index, pivot_table, fill_value, melt, lineage), and make it
-actionable.
+This assignment taught me to clean and reshape whole columns at once instead of one value at a 
+time, and that every convenient default can hide a data problem. Vectorized .str methods let me 
+normalize employee IDs so that " e004", "E4" and "e10 " all match the roster's "E004" form. 
+Keys must be fully normalized before a merge, or rows silently drop out. Likewise, 
+pd.to_numeric(errors="coerce") with .fillna(0.0) keeps the pipeline running, but it makes a 
+bad value look like a real zero-pay week. For dates, I parsed the mixed US and ISO formats in 
+two passes with explicit formats and combined them with fillna, because letting pandas guess 
+can silently swap months and days.
+
+I also learned how grain changes. Concatenating weekly files needs ignore_index=True, and 
+groupby with named aggregation turned one row per person per week into one row per person. 
+Pivoting showed me that an absence is not a row in long data until a pivot fills the gap with 0.
+
+I am still unsure about three things. Groupby drops rows with a missing key by default, so 
+unrostered employees vanish from my totals without any error. The pivot_table in hours_grid 
+averages by default, so I should have set aggfunc="sum". I also do not know when filling with 
+0.0 is safe, since it could drag down an average like avg_hours.
+
+Next, I will practice groupby with dropna=False, rewrite hours_grid with aggfunc="sum", use 
+merge with indicator=True to find unmatched IDs, and write a check that counts values coerced 
+to NaT or 0.0 so bad data gets reported instead of hidden.
